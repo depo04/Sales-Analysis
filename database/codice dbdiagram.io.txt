@@ -1,0 +1,155 @@
+ORIGINAL:
+
+Table fact_sales {
+  transaction_id varchar [primary key]
+  order_id varchar [not null]
+  customer_id varchar [not null]
+  store_id varchar [not null]
+  product_id varchar [not null]
+  date_id integer [not null]
+  time_id integer [not null]
+  sales_channel varchar
+  quantity integer
+  unit_price decimal 
+  discount_percentage decimal
+  sales_amount decimal
+  cost_amount decimal
+  profit decimal
+  payment_method varchar
+  order_status varchar
+  shipping_method varchar
+  delivery_days integer
+  inventory_level integer
+  promotion_code varchar
+  customer_rating decimal
+  sales_representative varchar
+  returned_flag bool
+  returned_reason varchar
+}
+
+Table dim_customer {
+  id varchar [primary key] // creazione successiva di surrogate key
+  name varchar
+  age integer [note: 'sostituire con anno nascita']
+  gender varchar
+  segment varchar [note: 'SCD type 2']
+}
+
+Table dim_store {
+  id varchar [primary key]
+  name varchar
+  country varchar
+  region varchar
+  city varchar
+}
+
+Table dim_product {
+  id varchar [primary key]
+  name varchar
+  category varchar
+  subcategory varchar
+}
+
+Table dim_date {
+  id integer [primary key]
+  order_date timestamp  [note: 'possibilità di creare colonne derivate']
+  order_year integer
+}
+
+Table dim_time {
+  id integer [primary key]
+  order_time time [note: 'possibilità di creare colonne derivate']
+}
+
+Ref customer_sales: dim_customer.id < fact_sales.customer_id // one-to-many
+
+Ref store_sales: dim_store.id < fact_sales.store_id // one-to-many
+
+Ref product_sales: dim_product.id < fact_sales.product_id // one-to-many
+
+Ref date_sales: dim_date.id < fact_sales.date_id // one-to-many
+
+Ref time_sales: dim_time.id < fact_sales.time_id // one-to-many
+
+
+FINAL:
+
+Table fact_sales {
+  transaction_id varchar [primary key]
+  order_id varchar [not null]
+  user_sk integer [not null]
+  store_id varchar [not null]
+  product_id varchar [not null]
+  date_id integer [not null]
+  time_id integer [not null]
+  sales_channel varchar
+  quantity integer
+  unit_price decimal 
+  discount_percentage decimal
+  sales_amount decimal
+  cost_amount decimal
+  profit decimal
+  payment_method varchar
+  order_status varchar
+  shipping_method varchar
+  delivery_days integer
+  inventory_level integer
+  promotion_code varchar
+  customer_rating decimal
+  sales_representative varchar
+  returned_flag bool
+  returned_reason varchar
+}
+
+Table dim_customer {
+  user_sk int [primary key]
+  customer_id varchar
+  name varchar
+  age integer 
+  gender varchar
+  segment varchar
+  valid_from timestamp
+  valid_to timestamp
+  is_current bool
+}
+
+Table dim_store {
+  id varchar [primary key]
+  name varchar
+  country varchar
+  region varchar
+  city varchar
+}
+
+Table dim_product {
+  id varchar [primary key]
+  name varchar
+  category varchar
+  subcategory varchar
+}
+
+Table dim_date {
+  date_id integer [primary key]
+  date date 
+  year integer
+  month integer
+  day integer
+}
+
+Table dim_time {
+  time_id integer [primary key]
+  time time
+  hour integer
+  minute integer
+  second integer
+}
+
+Ref customer_sales: dim_customer.user_sk < fact_sales.user_sk // one-to-many
+
+Ref store_sales: dim_store.id < fact_sales.store_id // one-to-many
+
+Ref product_sales: dim_product.id < fact_sales.product_id // one-to-many
+
+Ref date_sales: dim_date.date_id < fact_sales.date_id // one-to-many
+
+Ref time_sales: dim_time.time_id < fact_sales.time_id // one-to-many
